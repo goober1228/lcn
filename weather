@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather and Background with Image Overlay</title>
+    <style>
+        /* Style for the body and the background section */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .background {
+            background-color: #20A1FF; /* Replace with your desired background color */
+            height: 100%;
+            position: relative;
+        }
+
+        .overlay-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            height: 100%; /* Fit the image vertically */
+            width: auto; /* Maintain aspect ratio */
+        }
+
+        /* Style for the weather box */
+        .weather-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+            position: absolute;
+            top: 31.5%;
+            left: 23%;
+            transform: translate(-50%, -50%) scale(0.4); /* Center and apply scaling */
+            z-index: 10;
+            transition: transform 0.3s ease; /* Smooth scaling animation */
+        }
+
+        .weather-box h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .weather-box p {
+            margin: 5px 0;
+        }
+
+        .weather-box .temperature {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .weather-box .condition {
+            font-size: 18px;
+            color: #888;
+        }
+
+        .weather-box .location {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .weather-box .weather-icon {
+            width: 50px;
+            height: 50px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Background section with image overlay -->
+<div class="background">
+    <img src="https://imgur.com/LEyEWEd.jpg" alt="Overlay Image" class="overlay-image"> <!-- Replace with your image URL -->
+
+<!-- Weather box with weather data -->
+<div class="weather-box">
+  <h2>Weather in Lander</h2>
+  <p class="location">Loading...</p>
+  <p class="temperature"></p>
+  <p class="condition"></p>
+  <p class="high-low"></p>
+  <img src="" alt="Weather Icon" class="weather-icon">
+</div>
+
+<script>
+  const apiKey = '7350a0a5162c4c69a4901058250401';  // Replace with your WeatherAPI key
+  const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=Lander&days=1`;
+
+  // Weather icons for both day and night
+  const weatherIcons = {
+      "Sunny": {
+          day: "https://imgur.com/CAdXBoZ.png",  // Icon for day
+          night: "https://imgur.com/CAdXBoZ.png" // Icon for night (same in this case)
+      },
+      "Partly cloudy": {
+          day: "https://imgur.com/530297C.png", // Icon for day
+          night: "https://imgur.com/530297C.png" // Icon for night
+      },
+      "Cloudy": {
+          day: "https://imgur.com/oYgAsUc.png", // Icon for day
+          night: "https://imgur.com/oYgAsUc.png" // Icon for night
+      },
+      "Overcast": {
+          day: "https://imgur.com/530297C.png", // Icon for day
+          night: "https://imgur.com/530297C.png" // Icon for night
+      },
+      "Mist": {
+          day: "https://imgur.com/bzOCEsY.png", // Icon for day
+          night: "https://imgur.com/bzOCEsY.png" // Icon for night
+      },
+      "Patchy rain possible": {
+          day: "https://imgur.com/aAWryhU.png", // Icon for day
+          night: "https://imgur.com/aAWryhU.png" // Icon for night
+      },
+      "Light rain": {
+          day: "https://imgur.com/aAWryhU.png", // Icon for day
+          night: "https://imgur.com/aAWryhU.png" // Icon for night
+      },
+      "Heavy rain": {
+          day: "https://imgur.com/aAWryhU.png", // Icon for day
+          night: "https://imgur.com/aAWryhU.png" // Icon for night
+      },
+      "Patchy light rain with thunder": {
+          day: "https://imgur.com/dazmgl2.png", // Icon for day
+          night: "https://imgur.com/dazmgl2.png" // Icon for night
+      },
+      "Moderate snow": {
+          day: "https://imgur.com/uD90v9P.png", // Icon for day
+          night: "https://imgur.com/uD90v9P.png" // Icon for night
+      },
+      "Blizzard": {
+          day: "https://imgur.com/yJu64Ss.png", // Icon for day
+          night: "https://imgur.com/yJu64Ss.png" // Icon for night
+      },
+      "Fog": {
+          day: "https://imgur.com/bzOCEsY.png", // Icon for day
+          night: "https://imgur.com/bzOCEsY.png" // Icon for night
+      },
+      "Freezing fog": {
+          day: "https://imgur.com/p3uLQQv.png", // Icon for day
+          night: "https://imgur.com/p3uLQQv.png" // Icon for night
+      },
+      "Patchy light drizzle": {
+          day: "https://imgur.com/eX3KTpH.png", // Icon for day
+          night: "https://imgur.com/eX3KTpH.png" // Icon for night
+      },
+      "Light drizzle": {
+          day: "https://imgur.com/eX3KTpH.png", // Icon for day
+          night: "https://imgur.com/eX3KTpH.png" // Icon for night
+      },
+      "Freezing drizzle": {
+          day: "https://imgur.com/eX3KTpH.png", // Icon for day
+          night: "https://imgur.com/eX3KTpH.png" // Icon for night
+      },
+      "Heavy freezing drizzle": {
+          day: "https://imgur.com/eX3KTpH.png", // Icon for day
+          night: "https://imgur.com/eX3KTpH.png" // Icon for night
+      },
+      "Patchy light rain": {
+          day: "https://imgur.com/aAWryhU.png", // Icon for day
+          night: "https://imgur.com/aAWryhU.png" // Icon for night
+      },
+      "Moderate rain at times": {
+          day: "https://imgur.com/aAWryhU.png", // Icon for day
+          night: "https://imgur.com/aAWryhU.png" // Icon for night
+      },
+      "Moderate rain": {
+          day: "https://imgur.com/aAWryhU.png", // Icon for day
+          night: "https://imgur.com/aAWryhU.png" // Icon for night
+      },
+      "Heavy rain at times": {
+          day: "https://imgur.com/aAWryhU.png", // Icon for day
+          night: "https://imgur.com/aAWryhU.png" // Icon for night
+      },
+      "Heavy rain": {
+          day: "https://imgur.com/aAWryhU.png", // Icon for day
+          night: "https://imgur.com/aAWryhU.png" // Icon for night
+      },
+      "Light freezing rain": {
+          day: "https://imgur.com/eX3KTpH.png", // Icon for day
+          night: "https://imgur.com/eX3KTpH.png" // Icon for night
+      },
+      "Moderate or heavy freezing rain": {
+          day: "https://imgur.com/eX3KTpH.png", // Icon for day
+          night: "https://imgur.com/eX3KTpH.png" // Icon for night
+      },
+      "Light sleet": {
+          day: "https://imgur.com/eX3KTpH.png", // Icon for day
+          night: "https://imgur.com/eX3KTpH.png" // Icon for night
+      },
+      "Moderate or heavy sleet": {
+          day: "https://imgur.com/eX3KTpH.png", // Icon for day
+          night: "https://imgur.com/eX3KTpH.png" // Icon for night
+      },
+      "Patchy light snow": {
+          day: "https://imgur.com/JhVjH61.png", // Icon for day
+          night: "https://imgur.com/JhVjH61.png" // Icon for night
+      },
+      "Light snow": {
+          day: "https://imgur.com/JhVjH61.png", // Icon for day
+          night: "https://imgur.com/JhVjH61.png" // Icon for night
+      },
+      "Patchy moderate snow": {
+          day: "https://imgur.com/JhVjH61.png", // Icon for day
+          night: "https://imgur.com/JhVjH61.png" // Icon for night
+      },
+      "Moderate snow": {
+          day: "https://imgur.com/JhVjH61.png", // Icon for day
+          night: "https://imgur.com/JhVjH61.png" // Icon for night
+      },
+      "Patchy heavy snow": {
+          day: "https://imgur.com/JhVjH61.png", // Icon for day
+          night: "https://imgur.com/JhVjH61.png" // Icon for night
+      },
+      "Heavy snow": {
+          day: "https://imgur.com/JhVjH61.png", // Icon for day
+          night: "https://imgur.com/JhVjH61.png" // Icon for night
+      },
+      "Ice pellets": {
+          day: "https://imgur.com/7mGo9UL.png", // Icon for day
+          night: "https://imgur.com/7mGo9UL.png" // Icon for night
+      }
+  };
+
+  // Function to convert Celsius to Fahrenheit
+  function celsiusToFahrenheit(celsius) {
+      return (celsius * 9 / 5) + 32;
+  }
+
+  // Fetch weather data
+  function getWeather() {
+      fetch(url)
+          .then(response => response.json())
+          .then(data => {
+              if (data && data.forecast && data.forecast.forecastday[0]) {
+                  const location = "Lander, Mayflower"; 
+                  const highTempC = data.forecast.forecastday[0].day.maxtemp_c;
+                  const lowTempC = data.forecast.forecastday[0].day.mintemp_c;
+                  const highTempF = celsiusToFahrenheit(highTempC).toFixed(1);
+                  const lowTempF = celsiusToFahrenheit(lowTempC).toFixed(1);
+                  const condition = data.forecast.forecastday[0].day.condition.text;
+                  const isDay = data.current.is_day;
+                  const iconType = isDay ? 'day' : 'night'; 
+
+                  // Use condition-specific icon or fallback to generic
+                  const iconUrl = weatherIcons[condition]?.[iconType] || weatherIcons["Sunny"].day;
+
+                  // Update UI with weather data
+                  document.querySelector('.location').textContent = location;
+                  document.querySelector('.temperature').textContent = `${highTempF}°F / ${lowTempF}°F`;
+                  document.querySelector('.condition').textContent = condition;
+                  document.querySelector('.high-low').textContent = `High: ${highTempF}°F | Low: ${lowTempF}°F`;
+                  document.querySelector('.weather-icon').src = iconUrl;
+              } else {
+                  showError("Data not available");
+              }
+          })
+          .catch(error => {
+              console.error('Error fetching weather data:', error);
+              showError("Error fetching weather data");
+          });
+  }
+
+  // Show error message
+  function showError(message) {
+      document.querySelector('.location').textContent = message;
+  }
+
+  // Call the weather fetch function
+  getWeather();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather and Dynamic Text</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative; /* Ensure relative positioning for child elements */
+        }
+
+        .background {
+            background-color: #20A1FF;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        #static-text-container {
+            position: absolute;
+            z-index: 5; /* Make sure the text is above the background */
+        }
+
+        .weather-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+            position: absolute;
+            top: 31.25%;
+            left: 13.75%;
+            transform: translate(-50%, -50%) scale(0.4);
+            z-index: 10; /* Ensure it is above the text */
+            transition: transform 0.3s ease;
+        }
+
+        .weather-box h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .weather-box p {
+            margin: 5px 0;
+        }
+
+        .weather-box .temperature {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .weather-box .condition {
+            font-size: 18px;
+            color: #888;
+        }
+
+        .weather-box .location {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .weather-box .weather-icon {
+    width: 50px;
+    height: 50px;
+}
