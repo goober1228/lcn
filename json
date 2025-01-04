@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GET Request to jsonbin.io</title>
+</head>
+<body>
+    <h1>Data from jsonbin.io</h1>
+    <pre id="response"></pre>
+
+    <script>
+        const xMasterKey = '$2a$10$C7ueI8bpJLuVA2QXTy7wp.mT0XutdMF8W.Fz2zesAm4jMxPSsU6V6';  // Replace with your x-master-key
+        const binId = '6778cd74ad19ca34f8e560cf';  // Replace with your bin ID
+
+        fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+            method: 'GET',
+            headers: {
+                'X-Master-Key': xMasterKey
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    </script>
+</body>
+</html>
